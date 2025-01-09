@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
+#include "QueryHolder.h"
 #include "SharedDefines.h"
 #include <unordered_map>
 
@@ -183,6 +184,7 @@ enum WorldBoolConfigs
     CONFIG_ALLOWS_RANK_MOD_FOR_PET_HEALTH,
     CONFIG_MUNCHING_BLIZZLIKE,
     CONFIG_ENABLE_DAZE,
+    CONFIG_SPELL_QUEUE_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -417,8 +419,9 @@ enum WorldIntConfigs
     CONFIG_LFG_KICK_PREVENTION_TIMER,
     CONFIG_CHANGE_FACTION_MAX_MONEY,
     CONFIG_WATER_BREATH_TIMER,
-    CONFIG_AUCTION_HOUSE_SEARCH_TIMEOUT,
     CONFIG_DAILY_RBG_MIN_LEVEL_AP_REWARD,
+    CONFIG_AUCTIONHOUSE_WORKERTHREADS,
+    CONFIG_SPELL_QUEUE_WINDOW,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -499,6 +502,7 @@ enum Rates
     RATE_REST_INGAME,
     RATE_REST_OFFLINE_IN_TAVERN_OR_CITY,
     RATE_REST_OFFLINE_IN_WILDERNESS,
+    RATE_REST_MAX_BONUS,
     RATE_DAMAGE_FALL,
     RATE_AUCTION_TIME,
     RATE_AUCTION_DEPOSIT,
@@ -514,7 +518,8 @@ enum Rates
     RATE_DURABILITY_LOSS_PARRY,
     RATE_DURABILITY_LOSS_ABSORB,
     RATE_DURABILITY_LOSS_BLOCK,
-    RATE_MOVESPEED,
+    RATE_MOVESPEED_PLAYER,
+    RATE_MOVESPEED_NPC,
     RATE_MISS_CHANCE_MULTIPLIER_TARGET_CREATURE,
     RATE_MISS_CHANCE_MULTIPLIER_TARGET_PLAYER,
     MAX_RATES
@@ -599,6 +604,9 @@ public:
     [[nodiscard]] virtual LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const = 0;
     virtual void LoadDBVersion() = 0;
     [[nodiscard]] virtual char const* GetDBVersion() const = 0;
+#ifdef MOD_PLAYERBOTS
+    [[nodiscard]] virtual char const* GetPlayerbotsDBRevision() const = 0;
+#endif
     virtual void UpdateAreaDependentAuras() = 0;
     [[nodiscard]] virtual uint32 GetCleaningFlags() const = 0;
     virtual void   SetCleaningFlags(uint32 flags) = 0;
@@ -606,6 +614,7 @@ public:
     [[nodiscard]] virtual std::string const& GetRealmName() const = 0;
     virtual void SetRealmName(std::string name) = 0;
     virtual void RemoveOldCorpses() = 0;
+    virtual SQLQueryHolderCallback& AddQueryHolderCallback(SQLQueryHolderCallback&& callback) = 0;
     virtual void DoForAllOnlinePlayers(std::function<void(Player*)> exec) = 0;
 };
 

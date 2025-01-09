@@ -219,6 +219,14 @@ void ScriptMgr::OnPlayerUpdate(Player* player, uint32 p_time)
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_UPDATE, script->OnUpdate(player, p_time));
 }
 
+void ScriptMgr::OnAfterPlayerUpdate(Player* player, uint32 diff)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnAfterUpdate(player, diff);
+    });
+}
+
 void ScriptMgr::OnPlayerLogin(Player* player)
 {
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_LOGIN, script->OnLogin(player));
@@ -642,6 +650,11 @@ void ScriptMgr::OnApplyItemModsBefore(Player* player, uint8 slot, bool apply, ui
 void ScriptMgr::OnApplyEnchantmentItemModsBefore(Player* player, Item* item, EnchantmentSlot slot, bool apply, uint32 enchant_spell_id, uint32& enchant_amount)
 {
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_APPLY_ENCHANTMENT_ITEM_MODS_BEFORE, script->OnApplyEnchantmentItemModsBefore(player, item, slot, apply, enchant_spell_id, enchant_amount));
+}
+
+void ScriptMgr::OnApplyWeaponDamage(Player* player, uint8 slot, ItemTemplate const* proto, float& minDamage, float& maxDamage, uint8 damageIndex)
+{
+    CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_APPLY_WEAPON_DAMAGE, script->OnApplyWeaponDamage(player, slot, proto, minDamage, maxDamage, damageIndex));
 }
 
 bool ScriptMgr::CanArmorDamageModifier(Player* player)

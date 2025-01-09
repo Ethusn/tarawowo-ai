@@ -19,7 +19,6 @@
 #define __ACORE_CHANNELMGR_H
 
 #include "Channel.h"
-#include "Common.h"
 #include "World.h"
 #include <map>
 #include <string>
@@ -41,6 +40,7 @@ public:
 
     Channel* GetJoinChannel(std::string const& name, uint32 channel_id);
     Channel* GetChannel(std::string const& name, Player* p, bool pkt = true);
+    const ChannelMap& GetChannels() const { return channels; }
     static void LoadChannels();
 
     static void LoadChannelRights();

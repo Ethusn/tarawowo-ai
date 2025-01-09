@@ -34,6 +34,7 @@
 #include "Language.h"
 #include "MapMgr.h"
 #include "MiscPackets.h"
+#include "MMapFactory.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
@@ -1157,19 +1158,15 @@ public:
     static bool HandleReviveCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
     {
         if (!target)
-        {
             target = PlayerIdentifier::FromTargetOrSelf(handler);
-        }
 
         if (!target)
-        {
             return false;
-        }
 
         if (target->IsConnected())
         {
             auto targetPlayer = target->GetConnectedPlayer();
-
+            targetPlayer->RemoveAurasDueToSpell(27827); // Spirit of Redemption
             targetPlayer->ResurrectPlayer(!AccountMgr::IsPlayerAccount(targetPlayer->GetSession()->GetSecurity()) ? 1.0f : 0.5f);
             targetPlayer->SpawnCorpseBones();
             targetPlayer->SaveToDB(false, false);
@@ -1922,7 +1919,7 @@ public:
         // the max level of the new profession.
         uint16 max = maxPureSkill ? *maxPureSkill : targetHasSkill ? target->GetPureMaxSkillValue(skillID) : uint16(level);
 
-        if (level <= 0 || level > max || max <= 0)
+        if (level < 0 || level > max || max < 0)
         {
             return false;
         }
