@@ -150,6 +150,7 @@ enum PlayerHook
     PLAYERHOOK_ON_CUSTOM_SCALING_STAT_VALUE,
     PLAYERHOOK_ON_APPLY_ITEM_MODS_BEFORE,
     PLAYERHOOK_ON_APPLY_ENCHANTMENT_ITEM_MODS_BEFORE,
+    PLAYERHOOK_ON_APPLY_WEAPON_DAMAGE,
     PLAYERHOOK_CAN_ARMOR_DAMAGE_MODIFIER,
     PLAYERHOOK_ON_GET_FERAL_AP_BONUS,
     PLAYERHOOK_CAN_APPLY_WEAPON_DEPENDENT_AURA_DAMAGE_MOD,
@@ -259,7 +260,8 @@ public:
 
     // Called for player::update
     virtual void OnBeforeUpdate(Player* /*player*/, uint32 /*p_time*/) { }
-    virtual void OnUpdate(Player* /*player*/, uint32 /*p_time*/) { }
+    virtual void OnUpdate(Player* /*player*/, uint32 /*p_time*/) {}
+    virtual void OnAfterUpdate(Player* /*player*/, uint32 /*diff*/) {}
 
     // Called when a player's money is modified (before the modification is done)
     virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
@@ -546,6 +548,8 @@ public:
     virtual void OnApplyItemModsBefore(Player* /*player*/, uint8 /*slot*/, bool /*apply*/, uint8 /*itemProtoStatNumber*/, uint32 /*statType*/, int32& /*val*/) { }
 
     virtual void OnApplyEnchantmentItemModsBefore(Player* /*player*/, Item* /*item*/, EnchantmentSlot /*slot*/, bool /*apply*/, uint32 /*enchant_spell_id*/, uint32& /*enchant_amount*/) { }
+
+    virtual void OnApplyWeaponDamage(Player* /*player*/, uint8 /*slot*/, ItemTemplate const* /*proto*/, float& /*minDamage*/, float& /*maxDamage*/, uint8 /*damageIndex*/) { }
 
     [[nodiscard]] virtual bool CanArmorDamageModifier(Player* /*player*/) { return true; }
 

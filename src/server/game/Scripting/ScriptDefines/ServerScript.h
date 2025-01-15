@@ -20,6 +20,7 @@
 
 #include "ScriptObject.h"
 #include <vector>
+#include <memory> // NOTE: this import is NEEDED (even though some IDEs report it as unused)
 
 enum ServerHook
 {
@@ -69,6 +70,8 @@ public:
      * @return True if you want to continue receive the packet, false if you want to disallow receive the packet
      */
     [[nodiscard]] virtual bool CanPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { return true; }
+
+    virtual void OnPacketReceived(WorldSession* /*session*/, WorldPacket const& /*packet*/) { }
 };
 
 #endif

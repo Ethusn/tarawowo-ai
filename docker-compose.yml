@@ -8,7 +8,7 @@
 services:
   ac-database:
     container_name: ac-database
-    image: mysql:8.3
+    image: mysql:8.4
     networks:
       - ac-network
     ports:
@@ -77,6 +77,7 @@ services:
       AC_LOGIN_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_auth"
       AC_WORLD_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_world"
       AC_CHARACTER_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_characters"
+      AC_PLAYERBOTS_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_playerbots"
     ports:
       - ${DOCKER_WORLD_EXTERNAL_PORT:-8085}:8085
       - ${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
@@ -139,7 +140,7 @@ services:
         GROUP_ID: ${DOCKER_GROUP_ID:-1000}
         DOCKER_USER: ${DOCKER_USER:-acore}
     volumes:
-      - ${DOCKER_VOL_CLIENT_DATA:-ac-client-data}:/azerothcore/env/dist/data
+      - ${DOCKER_VOL_DATA:-ac-client-data}:/azerothcore/env/dist/data
 
   # used for extracting maps from files shipped with game client
   # Most of the time this shouldn't be needed

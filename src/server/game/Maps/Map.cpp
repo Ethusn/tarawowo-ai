@@ -26,10 +26,12 @@
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "IVMapMgr.h"
 #include "LFGMgr.h"
 #include "MapInstanced.h"
 #include "Metric.h"
 #include "MiscPackets.h"
+#include "MMapFactory.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
@@ -39,6 +41,7 @@
 #include "Transport.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
+#include "VMapMgr2.h"
 #include "Weather.h"
 
 union u_map_magic
@@ -558,7 +561,7 @@ bool Map::AddToMap(T* obj, bool checkTransport)
     if (obj->IsInWorld())
     {
         ASSERT(obj->IsInGrid());
-        obj->UpdateObjectVisibility(true);
+        obj->UpdateObjectVisibilityOnCreate();
         return true;
     }
 
@@ -2626,6 +2629,12 @@ void Map::SendObjectUpdates()
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
     for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {
+        if (!sScriptMgr->OnPlayerbotCheckUpdatesToSend(iter->first))
+        {
+            iter->second.Clear();
+            continue;
+        }
+
         iter->second.BuildPacket(packet);
         iter->first->GetSession()->SendPacket(&packet);
         packet.clear();                                     // clean the string
@@ -3037,6 +3046,8 @@ void InstanceMap::Update(const uint32 t_diff, const uint32 s_diff, bool /*thread
 
 void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 {
+    if (instance_data)
+        instance_data->OnPlayerLeave(player);
     // pussywizard: moved m_unloadTimer to InstanceMap::AfterPlayerUnlinkFromMap(), in this function if 2 players run out at the same time the instance won't close
     //if (!m_unloadTimer && m_mapRefMgr.getSize() == 1)
     //    m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);

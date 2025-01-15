@@ -22,10 +22,10 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
+#include "DatabaseEnvFwd.h"
 #include "IWorld.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
-#include "QueryResult.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 #include <atomic>
@@ -58,7 +58,6 @@ enum ShutdownExitCode : uint8
 /// Timers for different object refresh rates
 enum WorldTimers
 {
-    WUPDATE_AUCTIONS,
     WUPDATE_WEATHERS,
     WUPDATE_UPTIME,
     WUPDATE_CORPSES,
@@ -246,9 +245,9 @@ public:
     /// Are we in the middle of a shutdown?
     [[nodiscard]] bool IsShuttingDown() const override { return _shutdownTimer > 0; }
     [[nodiscard]] uint32 GetShutDownTimeLeft() const override { return _shutdownTimer; }
-    void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string()) override;
+    void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, std::string const& reason = std::string()) override;
     void ShutdownCancel() override;
-    void ShutdownMsg(bool show = false, Player* player = nullptr, const std::string& reason = std::string()) override;
+    void ShutdownMsg(bool show = false, Player* player = nullptr, std::string const& reason = std::string()) override;
     static uint8 GetExitCode() { return _exitCode; }
     static void StopNow(uint8 exitcode) { _stopEvent = true; _exitCode = exitcode; }
     static bool IsStopped() { return _stopEvent; }
@@ -331,6 +330,9 @@ public:
     // used World DB version
     void LoadDBVersion() override;
     [[nodiscard]] char const* GetDBVersion() const override { return _dbVersion.c_str(); }
+#ifdef MOD_PLAYERBOTS
+    [[nodiscard]] char const* GetPlayerbotsDBRevision() const override { return m_PlayerbotsDBRevision.c_str(); }
+#endif
 
     void UpdateAreaDependentAuras() override;
 
@@ -348,7 +350,7 @@ public:
 protected:
     void _UpdateGameTime();
     // callback for UpdateRealmCharacters
-    void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
+    void _UpdateRealmCharCount(PreparedQueryResult resultCharCount,uint32 accountId);
 
     void InitDailyQuestResetTime();
     void InitWeeklyQuestResetTime();
@@ -362,11 +364,15 @@ protected:
     void ResetRandomBG();
     void CalendarDeleteOldEvents();
     void ResetGuildCap();
+
+    SQLQueryHolderCallback& AddQueryHolderCallback(SQLQueryHolderCallback&& callback) override;
+
 private:
     static std::atomic_long _stopEvent;
     static uint8 _exitCode;
     uint32 _shutdownTimer;
     uint32 _shutdownMask;
+    std::string _shutdownReason;
 
     uint32 _cleaningFlags;
 
@@ -427,9 +433,13 @@ private:
 
     // used versions
     std::string _dbVersion;
+#ifdef MOD_PLAYERBOTS
+    std::string m_PlayerbotsDBRevision;
+#endif
 
     void ProcessQueryCallbacks();
     QueryCallbackProcessor _queryProcessor;
+    AsyncCallbackProcessor<SQLQueryHolderCallback> _queryHolderProcessor;
 
     /**
      * @brief Executed when a World Session is being finalized. Be it from a normal login or via queue popping.
